@@ -37,7 +37,7 @@ def annual_stats(cfg: Config, symbol: str, year: int) -> dict:
     return {
         "high": _format_price(stats["high"]),
         "low": _format_price(stats["low"]),
-        "volume": _format_price(stats["volume"]),
+        "volume": str(stats["volume"]),
     }
 
 def refresh_symbol(conn: sqlite3.Connection, cfg: Config, symbol: str, year: int) -> None:

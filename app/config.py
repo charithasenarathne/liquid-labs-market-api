@@ -9,7 +9,7 @@ class Config:
     api_key: str
 
 def load_config() -> Config:
-    api_key = os.getenv("ALPHAVANTAGE_API_KEY")
+    api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
     if not api_key:
         #Fail at startup, not on the first request.
         raise RuntimeError(

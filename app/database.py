@@ -8,7 +8,7 @@ SCHEMA_PATH = Path(__file__).resolve().parent.parent / 'schema.sql'
 def connect(db_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
-    conn.execute("PRGMA busy_timeout = 5000")
+    conn.execute("PRAGMA busy_timeout = 5000")
     return conn
 
 def init_db(db_path: str) -> None:
@@ -73,7 +73,7 @@ def save_symbol_history(conn: sqlite3.Connection, symbol:str, fetched_at:str, ro
             INSERT OR REPLACE INTO monthly_prices
                 (symbol, year, month, high, low, volume)
             VALUES
-                (?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?)
             """,
             rows
         )

@@ -26,7 +26,8 @@ def create_app(cfg: Config) -> FastAPI:
         year: int = PathParam(),
     ) -> AnnualStats:
         try:
-            return AnnualStats(**stats_service.annual_stats(cfg, symbol, year))
+            result = stats_service.annual_stats(cfg, symbol, year)
+            return AnnualStats(high=result["high"], low=result["low"], volume=result["volume"])
         except stats_service.NoDataError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
         except alpha_vantage_client.UnknownSymbolError as exc:

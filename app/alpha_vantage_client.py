@@ -24,7 +24,7 @@ def fetch_monthly_history(symbol: str, api_key: str) -> dict:
             params={
                 "function": "TIME_SERIES_MONTHLY",
                 "symbol": symbol,
-                "api_key": api_key,
+                "apikey": api_key,
             },
             timeout=FETCH_TIMEOUT_SECONDS,
         )
@@ -45,7 +45,7 @@ def fetch_monthly_history(symbol: str, api_key: str) -> dict:
     return body
 
 def parse_monthly_history(symbol: str, body:dict) -> list[tuple]:
-    """Convert a fetch_monthly() body into (symbol, year, month, high, low,
+    """Convert a fetch_monthly_history() body into (symbol, year, month, high, low,
     volume) tuples ready for insertion. Prices become scaled integers."""
     rows = []
     try:
