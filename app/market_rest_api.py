@@ -30,7 +30,7 @@ def create_app(cfg: Config) -> FastAPI:
             return AnnualStats(high=result["high"], low=result["low"], volume=result["volume"])
         except stats_service.NoDataError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
-        except alpha_vantage_client.UnknownSymbolError as exc:
+        except alpha_vantage_client.UnKnownSymbolError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
         except alpha_vantage_client.RateLimitError as exc:
             return JSONResponse(
