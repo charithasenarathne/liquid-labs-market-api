@@ -1,4 +1,4 @@
-#Liquid Labs Market API
+## Liquid Labs Market API
 
 A small REST API that serves annual stock statistics (highest price, lowest price, total volume) aggregated from Alpha Vantage monthly data. 
 Fetched data is cached in a local SQLite database; each symbol costs exactly one upstream API call, ever, no matter how many requests follow.
