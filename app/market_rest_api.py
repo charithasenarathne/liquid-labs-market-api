@@ -17,6 +17,7 @@ class AnnualStats(BaseModel):
 
 
 def create_app(cfg: Config) -> FastAPI:
+    """Build the FastAPI application wired to the given config."""
     database.init_db(cfg.db_path)
     app = FastAPI(title="Market Data API")
 

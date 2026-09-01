@@ -6,12 +6,14 @@ from pathlib import Path
 SCHEMA_PATH = Path(__file__).resolve().parent.parent / 'schema.sql'
 
 def connect(db_path: str) -> sqlite3.Connection:
+    """Open a connection with the app's standard per-connection settings."""
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA busy_timeout = 5000")
     return conn
 
 def init_db(db_path: str) -> None:
+    """Create the database file if needed and apply schema.sql (idempotent)."""
     conn = connect(db_path)
     try:
         conn.execute("PRAGMA journal_mode = WAL")
@@ -41,6 +43,7 @@ def get_annual_stats( conn: sqlite3.Connection, symbol :str, year :int) -> dict 
     return {"high": row[0], "low": row[1], "volume": row[2]}
 
 def get_symbol_fetched_at(conn: sqlite3.Connection, symbol:str) -> str | None:
+    """Return the ISO timestamp of the symbol's last fetch, or None if never."""
     row = conn.execute(
         """
         SELECT 

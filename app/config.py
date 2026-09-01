@@ -9,6 +9,7 @@ class Config:
     api_key: str
 
 def load_config() -> Config:
+    """Read configuration from the environment; fail fast if the key is missing."""
     api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
     if not api_key:
         #Fail at startup, not on the first request.

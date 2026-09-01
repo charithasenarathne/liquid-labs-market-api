@@ -1,10 +1,13 @@
 """Core flow: serve annual stats from the DB, fetching on cache miss."""
 import sqlite3
 import threading
+import logging
 from datetime import datetime, timedelta, timezone
 
 from . import alpha_vantage_client, database
 from .config import Config
+
+logger = logging.getLogger(__name__)
 
 MIN_YEAR = 1900
 STALE_TTL = timedelta(hours=24)
@@ -15,6 +18,8 @@ class NoDataError(Exception):
     """NO data exists for this symbol/year"""
 
 def annual_stats(cfg: Config, symbol: str, year: int) -> dict:
+    """Return {"high", "low", "volume"} strings for one symbol-year,
+      fetching from Alpha Vantage first if the cache cannot answer."""
     symbol = symbol.upper()
     if year < MIN_YEAR or year > _utcnow().year:
         raise NoDataError(f"No Data for {symbol} in {year}")
@@ -47,14 +52,17 @@ def refresh_symbol(conn: sqlite3.Connection, cfg: Config, symbol: str, year: int
         rows = alpha_vantage_client.parse_monthly_history(symbol, body)
     except alpha_vantage_client.UnKnownSymbolError:
         database.save_symbol_history(conn, symbol, _utcnow().isoformat(), [])
+        logger.info("Negative-cached unknown symbol %s", symbol)
         raise
     except (alpha_vantage_client.RateLimitError, alpha_vantage_client.UpstreamError):
         if database.get_annual_stats(conn, symbol, year) is None:
             raise
+        logger.warning("Refresh of %s failed; serving stale data", symbol)
     else:
         database.save_symbol_history(conn, symbol, _utcnow().isoformat(), rows)
 
 def _needs_fetch(conn: sqlite3.Connection, symbol: str, year: int) -> bool:
+    """Decide whether the upstream must be called to answer this request."""
     fetched_at_text = database.get_symbol_fetched_at(conn, symbol)
     if fetched_at_text is None:
         return True

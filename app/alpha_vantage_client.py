@@ -2,6 +2,10 @@
 
 from decimal import Decimal,InvalidOperation
 import requests
+import logging
+import time
+
+logger = logging.getLogger(__name__)
 
 BASE_URL = "https://www.alphavantage.co/query"
 FETCH_TIMEOUT_SECONDS = 10
@@ -18,6 +22,10 @@ class UnKnownSymbolError(Exception):
     """The upstream API refused due to unknown symbol"""
 
 def fetch_monthly_history(symbol: str, api_key: str) -> dict:
+    """Call TIME_SERIES_MONTHLY and return the JSON body, or raise one of
+      the three module exceptions. The whole history comes in one response."""
+    logger.info("Fetching %s from Alpha Vantage (uses 1 quota call)", symbol)
+    started = time.monotonic()
     try:
         response = requests.get(
             BASE_URL,
@@ -42,6 +50,11 @@ def fetch_monthly_history(symbol: str, api_key: str) -> dict:
         raise UnKnownSymbolError(f"Alpha Vantage API error message: {body}")
     if SERIES_KEY not in body:
         raise UpstreamError(f"Alpha Vantage API error message: {body}")
+
+    logger.info(
+        "Fetched %s: %d months in %.2fs",
+        symbol, len(body[SERIES_KEY]), time.monotonic() - started,
+        )
     return body
 
 def parse_monthly_history(symbol: str, body:dict) -> list[tuple]:
